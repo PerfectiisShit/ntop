@@ -102,3 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# something doesn't really need
+ngxtop/
+src/access_log
