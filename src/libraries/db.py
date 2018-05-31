@@ -30,7 +30,7 @@ class LogDB(object):
 
             return [dict(i) for i in data]
         except Exception as e:
-            # Log the exception
+            print(str(e))
             pass
 
     def query_http_status(self):
@@ -48,20 +48,16 @@ class LogDB(object):
               " COUNT(CASE WHEN status LIKE '4%' THEN 1 END) AS '4xx'," \
               " COUNT(CASE WHEN status LIKE '5%' THEN 1 END) AS '5xx'" \
               " FROM %s GROUP BY status" % self.table
-        with closing(self.conn.cursor()) as cursor:
-            cursor.execute(sql)
-            data = cursor.fetchall()
+        return self.query(sql)
 
-        return data
-
-    def simple_group_by(self, group_by, having='', limit=10):
+    def _simple_group_by(self, group_by, where='', having='', limit=30):
         sql = "SELECT %s, COUNT(1) AS count, SUM(body_bytes_sent) AS bandwidth " \
-              "FROM %s GROUP BY  %s ORDER BY count DESC LIMIT %s"\
-              % (group_by, self.table, group_by, limit)
+              "FROM %s %s GROUP BY  %s %s ORDER BY count DESC LIMIT %s"\
+              % (group_by, self.table, where, group_by, having, limit)
 
         return self.query(sql)
 
-    def query_request_path(self):
+    def query_request_files(self):
         """
         :return: 
         [
@@ -69,7 +65,13 @@ class LogDB(object):
         {'bandwidth': 72628, 'count': 228, 'request': 'GET / HTTP/1.0'}
         ]
         """
-        return self.simple_group_by('request', 20)
+        return self._simple_group_by(group_by='request', where="WHERE request not like '%/static/%'")
+
+    def query_static_files(self):
+        return self._simple_group_by(group_by='request', where="WHERE request like '%/static/%'")
+
+    def query_not_found_files(self):
+        return self._simple_group_by(group_by='request', where="WHERE status = '404'")
 
     def query_remote_address(self):
         """
@@ -79,10 +81,10 @@ class LogDB(object):
         {'bandwidth': 72628, 'count': 228, 'remote_addr': '1.1.1.1'}
         ]
         """
-        return self.simple_group_by('remote_addr', 20)
+        return self._simple_group_by('remote_addr')
 
     def query_user_agent(self):
-        return self.simple_group_by('http_user_agent')
+        return self._simple_group_by('http_user_agent')
 
     def query_http_referer(self):
         """
@@ -92,7 +94,7 @@ class LogDB(object):
         {'bandwidth': 72628, 'count': 228, 'http_referer': 'http://example.com/go'}
         ]
         """
-        return self.simple_group_by('http_referer', 20)
+        return self._simple_group_by('http_referer')
 
     def init_db(self):
         create_table = 'create table %s (%s)' % (self.table, self.column_list)
@@ -103,8 +105,8 @@ class LogDB(object):
 
     def count(self):
         with closing(self.conn.cursor()) as cursor:
-            cursor.execute('select count(1) from %s' % self.table)
-            return cursor.fetchone()[0]
+            cursor.execute('select count(1) as count from %s' % self.table)
+            return cursor.fetchone()['count']
 
     def close(self):
         self.conn.close()

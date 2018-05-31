@@ -1,7 +1,6 @@
 import re
-import time, datetime
-# from libraries.objects.raw import UniqueVisitor, RequestPath, ObjectsList
-# from libraries.constants import SORT_HITS
+import time
+import datetime
 from libraries.utils import coroutine
 from libraries.db import get_logdb
 
@@ -18,6 +17,7 @@ def build_pattern(log_format):
     pattern = re.sub(REGEX_SPECIAL_CHARS, r'\\\1', log_format)
     pattern = re.sub(REGEX_LOG_FORMAT_VARIABLE, '(?P<\\1>.*)', pattern)
     pattern = re.compile(pattern)
+    # Initialize database with the field parsed from log format
     _ = get_logdb(pattern.groupindex.keys())
     return pattern
 

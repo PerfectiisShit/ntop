@@ -1,3 +1,4 @@
+from libraries.utils import bytes2human
 
 
 def format_request_status(data):
@@ -5,10 +6,10 @@ def format_request_status(data):
         return data
 
     status = {
-        '2xx': {'count': 0, 'bandwidth': 0, 'details': []},
-        '3xx': {'count': 0, 'bandwidth': 0, 'details': []},
-        '4xx': {'count': 0, 'bandwidth': 0, 'details': []},
-        '5xx': {'count': 0, 'bandwidth': 0, 'details': []},
+        '2xx': {'count': 0, 'bandwidth': 0, 'data': '2xx Success', 'details': []},
+        '3xx': {'count': 0, 'bandwidth': 0, 'data': '3xx Redirection', 'details': []},
+        '4xx': {'count': 0, 'bandwidth': 0, 'data': '4xx Client Error', 'details': []},
+        '5xx': {'count': 0, 'bandwidth': 0, 'data': '5xx Server Error', 'details': []},
         'total_counts': 0
     }
     for i in data:
@@ -33,9 +34,7 @@ def format_request_path(data):
             i['data'] = i['request']
             i['method'] = i['protocol'] = 'Unknown'
         else:
-            i['method'] = request[0]
-            i['data'] = request[1]
-            i['protocol'] = request[2]
+            i['method'], i['data'], i['protocol'] = request
 
         del i['request']
 

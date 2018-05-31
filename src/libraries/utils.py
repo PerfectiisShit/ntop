@@ -1,3 +1,6 @@
+import time
+
+
 def bytes2human(bytes, suffix='B'):
     for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
         if abs(bytes) < 1024.00:
@@ -14,4 +17,11 @@ def coroutine(func):
     return start
 
 
-hits_sort = lambda object: object.hits
+def follow(thefile):
+    thefile.seek(0, 2) # Go to the end of the file
+    while True:
+        line = thefile.readline()
+        if not line:
+            time.sleep(0.1) # Sleep briefly
+            continue
+        yield line
