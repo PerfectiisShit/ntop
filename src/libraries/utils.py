@@ -25,3 +25,14 @@ def follow(thefile):
             time.sleep(0.1) # Sleep briefly
             continue
         yield line
+
+
+def closest_hour(timestamp):
+    # Return the timestamp of next hour by the given timestamp
+    return (int(timestamp / 3600) + 1) * 3600
+
+
+def timestamp2human(timestamp):
+    time_local = time.localtime(timestamp)
+    dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
+    return dt

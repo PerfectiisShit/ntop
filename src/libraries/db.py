@@ -33,7 +33,19 @@ class LogDB(object):
             print(str(e))
             pass
 
-    def query_http_status(self):
+    @staticmethod
+    def build_where_by_timestamp(start=None, stop=None):
+        where = ""
+        if start and stop:
+            where = "AND time_local > %s AND time_local < %s " % (start, stop)
+        elif start and not stop:
+            where = "AND time_local > %s " % start
+        elif not start and stop:
+            where = "AND time_local < %s " % stop
+
+        return where
+
+    def query_http_status(self, start, stop):
         """
         :return:  
         [...,
@@ -41,23 +53,25 @@ class LogDB(object):
         {'5xx': 0, '3xx': 176, '2xx': 0, 'bandwidth': 55418, 'status': '301', 'count': 176, '4xx': 0},
         ...]
         """
+        where = self.build_where_by_timestamp(start, stop)
         sql = "SELECT status, COUNT(1) AS count," \
               " SUM(body_bytes_sent) AS bandwidth," \
               " COUNT(CASE WHEN status LIKE '2%' THEN 1 END) AS '2xx'," \
               " COUNT(CASE WHEN status LIKE '3%' THEN 1 END) AS '3xx'," \
               " COUNT(CASE WHEN status LIKE '4%' THEN 1 END) AS '4xx'," \
               " COUNT(CASE WHEN status LIKE '5%' THEN 1 END) AS '5xx'" \
-              " FROM %s GROUP BY status" % self.table
+              " FROM %s WHERE 1 = 1 %s GROUP BY status" % (self.table, where)
         return self.query(sql)
 
-    def _simple_group_by(self, group_by, where='', having='', limit=30):
+    def _simple_group_by(self, group_by, start, stop, where='', having='', limit=30):
+        where = self.build_where_by_timestamp(start, stop) + where
         sql = "SELECT %s, COUNT(1) AS count, SUM(body_bytes_sent) AS bandwidth " \
-              "FROM %s %s GROUP BY  %s %s ORDER BY count DESC LIMIT %s"\
+              "FROM %s WHERE 1 = 1 %s GROUP BY  %s %s ORDER BY count DESC LIMIT %s"\
               % (group_by, self.table, where, group_by, having, limit)
 
         return self.query(sql)
 
-    def query_request_files(self):
+    def query_request_files(self, start, stop):
         """
         :return: 
         [
@@ -65,15 +79,16 @@ class LogDB(object):
         {'bandwidth': 72628, 'count': 228, 'request': 'GET / HTTP/1.0'}
         ]
         """
-        return self._simple_group_by(group_by='request', where="WHERE request not like '%/static/%'")
 
-    def query_static_files(self):
-        return self._simple_group_by(group_by='request', where="WHERE request like '%/static/%'")
+        return self._simple_group_by('request', start, stop, where="AND request not like '%/static/%' ")
 
-    def query_not_found_files(self):
-        return self._simple_group_by(group_by='request', where="WHERE status = '404'")
+    def query_static_files(self, start, stop):
+        return self._simple_group_by('request', start, stop, where="AND request like '%/static/%' ")
 
-    def query_remote_address(self):
+    def query_not_found_files(self, start, stop):
+        return self._simple_group_by('request', start, stop, where="AND status = '404' ")
+
+    def query_remote_address(self, start, stop):
         """
         :return: 
         [
@@ -81,20 +96,20 @@ class LogDB(object):
         {'bandwidth': 72628, 'count': 228, 'remote_addr': '1.1.1.1'}
         ]
         """
-        return self._simple_group_by('remote_addr')
+        return self._simple_group_by('remote_addr', start, stop)
 
-    def query_user_agent(self):
-        return self._simple_group_by('http_user_agent')
+    def query_user_agent(self, start, stop):
+        return self._simple_group_by('http_user_agent', start, stop)
 
-    def query_http_referer(self):
+    def query_http_referer(self, start, stop):
         """
         :return: 
         [
-        {'bandwidth': 10129962, 'count': 894, 'http_referer': 'http://example.com/test'},
+        {'bandwidth': 10129962, 'count': 894, 'http_referer': 'http://example.com/test},
         {'bandwidth': 72628, 'count': 228, 'http_referer': 'http://example.com/go'}
         ]
         """
-        return self._simple_group_by('http_referer')
+        return self._simple_group_by('http_referer', start, stop)
 
     def init_db(self):
         create_table = 'create table %s (%s)' % (self.table, self.column_list)
@@ -103,10 +118,17 @@ class LogDB(object):
             cursor.execute(create_table)
             # cursor.execute(create_index)
 
-    def count(self):
+    def count(self, start, stop):
+        where = self.build_where_by_timestamp(start, stop)
         with closing(self.conn.cursor()) as cursor:
-            cursor.execute('select count(1) as count from %s' % self.table)
+            cursor.execute('select count(1) as count from %s WHERE 1 = 1 %s' % (self.table, where))
             return cursor.fetchone()['count']
+
+    def query_timerange(self):
+        with closing(self.conn.cursor()) as cursor:
+            cursor.execute('select min(time_local) as start_time, max(time_local) as end_time from %s' % self.table)
+            result = cursor.fetchone()
+            return result['start_time'], result['end_time']
 
     def close(self):
         self.conn.close()
