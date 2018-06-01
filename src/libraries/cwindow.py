@@ -44,9 +44,7 @@ class MainWindow(object):
             self.start = self.stop
             self.stop += 3600
 
-        self.window.clear()
-        self.pre_display()
-        self.window.refresh()
+        self.refresh()
 
     def goto_previous_hour(self):
         if self.start is None and self.stop is None:
@@ -56,9 +54,7 @@ class MainWindow(object):
             self.stop = self.start
             self.start -= 3600
 
-        self.window.clear()
-        self.pre_display()
-        self.window.refresh()
+        self.refresh()
 
     def pre_display(self):
         self.display_summary()
@@ -167,9 +163,7 @@ class MainWindow(object):
                 self.goto_previous_hour()
             elif key == ord('g'):
                 self.start = self.stop = None
-                self.window.clear()
-                self.pre_display()
-                self.window.refresh()
+                self.refresh()
 
     def destroy(self):
         # Don't not end the window again if it's already de-initialized
@@ -178,6 +172,11 @@ class MainWindow(object):
             curses.nocbreak()
             curses.echo()
             curses.endwin()
+
+    def refresh(self):
+        self.window.clear()
+        self.pre_display()
+        self.window.refresh()
 
     @property
     def isendwin(self):
