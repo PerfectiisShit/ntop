@@ -4,11 +4,11 @@ An atop liked tool to display nginx access log
 ## Usage
 <pre>python36 main.py --format main --path access_log</pre>
 
-![image](https://github.com/PerfectiisShit/ntop/tree/master/images/3.PNG)  
+![image](https://github.com/PerfectiisShit/ntop/blob/master/images/3.PNG)  
 
-![image](https://github.com/PerfectiisShit/ntop/tree/master/images/2.PNG)  
+![image](https://github.com/PerfectiisShit/ntop/blob/master/images/2.PNG)  
 
-![image](https://github.com/PerfectiisShit/ntop/tree/master/images/1.PNG)  
+![image](https://github.com/PerfectiisShit/ntop/blob/master/images/1.PNG)  
 
 
 ## Tips: 
