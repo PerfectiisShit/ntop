@@ -24,9 +24,10 @@ def format_request_status(data):
     return status
 
 
-def format_request_path(data):
+def format_request_path(data, total_requests):
+    _data = []
     if not data:
-        return data
+        return _data
 
     for i in data:
         request = i['request'].split()
@@ -36,6 +37,13 @@ def format_request_path(data):
         else:
             i['method'], i['data'], i['protocol'] = request
 
-        del i['request']
+        message = "{:<5} {:>6,.2%} {:>12}  {:<8} {:<9} {}" \
+            .format(i['count'],
+                    float(i['count'] / total_requests),
+                    bytes2human(i['bandwidth']),
+                    i['method'],
+                    i['protocol'],
+                    i['data'])
+        _data.append(message)
 
-    return data
+    return _data

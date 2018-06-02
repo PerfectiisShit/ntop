@@ -27,9 +27,13 @@ def follow(thefile):
         yield line
 
 
-def closest_hour(timestamp):
+def earliest_hour(timestamp):
     # Return the timestamp of next hour by the given timestamp
     return (int(timestamp / 3600) + 1) * 3600
+
+
+def latest_hour(timestamp):
+    return int(timestamp / 3600) * 3600
 
 
 def timestamp2human(timestamp):
