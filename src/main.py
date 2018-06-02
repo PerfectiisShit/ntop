@@ -1,6 +1,5 @@
 from __future__ import division
 import time
-import asyncio
 import datetime
 import argparse
 
@@ -71,7 +70,4 @@ if __name__ == "__main__":
     process_log(log_file, pattern)
     window = MainWindow()
     window.display()
-    # loop = asyncio.get_event_loop()
-    # loop.run_until_complete(asyncio.wait([asyncio.ensure_future(window.display())]))
-    # loop.close()
 

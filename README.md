@@ -1,5 +1,5 @@
 # ntop
-An atop liked tool to display nginx access log
+An atop liked tool to display nginx access log, only supports python3
 
 ## Usage
 <pre>python36 main.py --format main --path access_log</pre>

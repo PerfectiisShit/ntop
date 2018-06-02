@@ -1,9 +1,5 @@
-import re
 import curses
 import atexit
-from math import ceil
-import asyncio
-import time
 import sys
 import traceback
 
@@ -119,24 +115,6 @@ class MainWindow(object):
 
     def highlight_line(self, line):
         return line + " " * (self.width - len(line))
-
-    # def _display_request_files(self, request_files, title):
-    #     """"""
-    #     total_requests = self.total_requests
-    #     request_files = format_request_path(request_files)
-    #     self.window.addstr(self.new_line + 1, 0, self.highlight_line(title), curses.A_REVERSE)
-    #     colomns = "{:<5} {:>6} {:>12}  {:<8} {:<9} {}".format("Hits", "%h", "Bandwidth", "Method", "Protocol", "Data")
-    #     self.window.addstr(self.new_line, 0, colomns)
-    #     for file in request_files[:10]:
-    #         self.window.addnstr(self.new_line, 0,
-    #                             "{:<5} {:>6,.2%} {:>12}  {:<8} {:<9} {}"
-    #                             .format(file['count'],
-    #                                     float(file['count']/total_requests),
-    #                                     bytes2human(file['bandwidth']),
-    #                                     file['method'],
-    #                                     file['protocol'],
-    #                                     file['data']),
-    #                             self.width - 1)
 
     def display_messages(self):
         pos_x = 0
