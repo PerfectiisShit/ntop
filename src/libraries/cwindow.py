@@ -92,9 +92,9 @@ class MainWindow(object):
         self.refresh()
 
     def pre_display(self):
-        self.display_request_files()
-        self.display_static_files()
-        self.display_not_found_files()
+        self.get_request_files()
+        self.get_static_files()
+        self.get_not_found_files()
 
     def display(self):
         try:
@@ -125,7 +125,7 @@ class MainWindow(object):
                 self.window.addnstr(pos_x, 0, message, self.width - 1)
                 pos_x += 1
 
-    def display_request_files(self):
+    def get_request_files(self):
         messages = []
         title = "Requested Files (URLs)"
         colomns = "{:<5} {:>6} {:>12}  {:<8} {:<9} {}".format("Hits", "%h", "Bandwidth", "Method", "Protocol", "Data")
@@ -139,7 +139,7 @@ class MainWindow(object):
         messages.append("")
         self.messages.append(messages)
 
-    def display_static_files(self):
+    def get_static_files(self):
         messages = []
         title = "Static Requests"
         colomns = "{:<5} {:>6} {:>12}  {:<8} {:<9} {}".format("Hits", "%h", "Bandwidth", "Method", "Protocol", "Data")
@@ -153,7 +153,7 @@ class MainWindow(object):
         messages.append("")
         self.messages.append(messages)
 
-    def display_not_found_files(self):
+    def get_not_found_files(self):
         messages = []
         title = "Not Found URLs (404s)"
         colomns = "{:<5} {:>6} {:>12}  {:<8} {:<9} {}".format("Hits", "%h", "Bandwidth", "Method", "Protocol", "Data")
@@ -167,7 +167,7 @@ class MainWindow(object):
         messages.append("")
         self.messages.append(messages)
 
-    def display_http_status(self):
+    def get_http_status(self):
         status = format_request_status(self._db.query_http_status(self.start, self.stop))
 
     def scrolldown(self):
