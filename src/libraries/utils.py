@@ -1,5 +1,5 @@
 import time
-
+from collections import UserList
 
 def bytes2human(bytes, suffix='B'):
     for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
@@ -40,3 +40,11 @@ def timestamp2human(timestamp):
     time_local = time.localtime(timestamp)
     dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
     return dt
+
+
+class MessageLists(UserList):
+    def __init__(self, initlist, title, columns):
+        super().__init__(initlist)
+        self.title = title
+        self.columns = columns
+        self.data.extend([""] * (30 - len(self.data)))

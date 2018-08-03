@@ -36,13 +36,21 @@ def process_log(log_file, pattern):
 @coroutine
 def process_db():
     logdb = get_logdb()
+    raws = []
     try:
         while True:
             raw = (yield)
             if raw is not None:
                 raw['time_local'] = int(time.mktime(datetime.datetime.strptime(
                     raw['time_local'], "%d/%b/%Y:%H:%M:%S %z").timetuple()))
-                logdb.process(raw)
+                if len(raws) < 1000:
+                    raws.append(raw)
+                else:
+                    logdb.processmany(raws)
+                    raws.clear()
+                    raws.append(raw)
 
     except GeneratorExit:
+        if raws:
+            logdb.processmany(raws)
         pass

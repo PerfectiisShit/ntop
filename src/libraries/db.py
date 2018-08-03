@@ -22,6 +22,11 @@ class LogDB(object):
         with closing(self.conn.cursor()) as cursor:
             cursor.execute(insert, raw)
 
+    def processmany(self, raws):
+        insert = 'insert into %s (%s) values (%s)' % (self.table, self.column_list, self.holder_list)
+        with closing(self.conn.cursor()) as cursor:
+            cursor.executemany(insert, raws)
+
     def query(self, sql):
         try:
             with closing(self.conn.cursor()) as cursor:
